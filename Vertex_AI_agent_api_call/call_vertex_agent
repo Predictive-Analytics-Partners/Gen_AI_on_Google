@@ -1,0 +1,52 @@
+import requests
+import google.auth
+from google.auth.transport.requests import Request
+import json
+
+def detect_intent_from_text(project_id, location, agent_id, session_id, user_input):
+    # Get the access token from gcloud
+    credentials, project = google.auth.default()
+    credentials.refresh(Request())
+    access_token = credentials.token
+
+    # Define the URL for the Dialogflow detectIntent API
+    url = f"https://{location}-dialogflow.googleapis.com/v3/projects/{project_id}/locations/{location}/agents/{agent_id}/sessions/{session_id}:detectIntent"
+
+    # Construct the headers
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "x-goog-user-project": project_id,
+        "Content-Type": "application/json; charset=utf-8"
+    }
+
+    # Construct the request body
+    data = {
+        "query_input": {
+            "text": {
+                "text": user_input
+            },
+            "language_code": "en"  # language_code should be at the same level as text, not inside it
+        }
+    }
+
+    # Send the POST request
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        return response.json()  # Return the response in JSON format
+    else:
+        return {
+            "error": response.status_code,
+            "message": response.text
+        }
+
+# Example usage
+project_id = "ladd-435817"
+location = "us-central1"
+agent_id = "cdf43b00-e3a1-42cd-875d-f034758034aa"
+session_id = "SESSION_123"  # Unique session ID per user or interaction
+user_input = "Hello, how can I use this service?"
+
+response = detect_intent_from_text(project_id, location, agent_id, session_id, user_input)
+print(response)
