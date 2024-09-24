@@ -1,1 +1,1 @@
-# genai_on_google
+# Gen AI on google
