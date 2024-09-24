@@ -1,0 +1,11 @@
+{
+    "queryInput": {
+      "text": {
+        "text": "I want to buy a shirt"
+      },
+      "language_code": "en"
+    },
+    "queryParams": {
+      "timeZone": "America/Los_Angeles"
+    }
+  }
