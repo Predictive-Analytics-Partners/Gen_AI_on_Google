@@ -19,19 +19,17 @@ def get_gcs_location_for_query(query: str):
     query_embedding = get_query_embedding(query)
 
     # Configure Vector Search client
-    client_options = {"api_endpoint": os.getenv("API_ENDPOINT")}
-    vector_search_client = aiplatform_v1.MatchServiceClient(
-        client_options=client_options
-    )
+    # No need to use os.getenv here since you have the direct values
+    client_options = {"api_endpoint": "1392356692.us-central1-39145427166.vdb.vertexai.goog"}  
+    vector_search_client = aiplatform_v1.MatchServiceClient(client_options=client_options)
 
     # Build FindNeighborsRequest object
     datapoint = aiplatform_v1.IndexDatapoint(feature_vector=query_embedding)
-    query = aiplatform_v1.FindNeighborsRequest.Query(
-        datapoint=datapoint, neighbor_count=10
-    )
+    query = aiplatform_v1.FindNeighborsRequest.Query(datapoint=datapoint, neighbor_count=10)
     request = aiplatform_v1.FindNeighborsRequest(
-        index_endpoint=os.getenv("INDEX_ENDPOINT"),
-        deployed_index_id=os.getenv("DEPLOYED_INDEX_ID"),
+        # Use the full index endpoint here
+        index_endpoint="projects/39145427166/locations/us-central1/indexEndpoints/2351068121487376384",  
+        deployed_index_id="my_first_multimodal_embedd_1727797874600",
         queries=[query],
         return_full_datapoint=True,
     )
@@ -43,8 +41,10 @@ def get_gcs_location_for_query(query: str):
     filename = response.nearest_neighbors[0].neighbors[0].datapoint.datapoint_id
     filename = filename.split("'")[1]
 
-    gcs_path = f"{os.getenv('GS_PATH')}/{filename}"
+    #gcs_path = f"{os.getenv('GS_PATH')}/{filename}"
+    gcs_path = f"gs://pdf-images-test/{filename}"      #Filename already contains subfolders: The filename you extract from the Vector Search response already includes the subfolder structure (e.g., Doc1/Doc1_images/page1.png).
 
+    print(gcs_path)
     return gcs_path
 
 
